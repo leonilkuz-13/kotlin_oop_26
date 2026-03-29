@@ -22,7 +22,6 @@ class SingleLinkedList : CustomList {
         size++
     }
 
-    // тут не совсем понятно, как сделать snapshot
     override operator fun set(index: Int, value: Int) {
         if (index < 0) {
             throw IndexOutOfBoundsException("Index $index is negative")
