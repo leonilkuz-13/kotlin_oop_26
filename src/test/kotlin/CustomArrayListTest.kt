@@ -1,17 +1,16 @@
-import org.example.list.SingleLinkedList
+import org.example.list.CustomArrayList
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class SingleLinkedListTest {
+class CustomArrayListTest {
 
-    private lateinit var list: SingleLinkedList
+    private lateinit var list: CustomArrayList
 
     @BeforeEach
     fun setUp() {
-        list = SingleLinkedList()
+        list = CustomArrayList(10)
     }
-
 
     @Test
     fun `add elements`() {
@@ -106,35 +105,17 @@ class SingleLinkedListTest {
     }
 
     @Test
-    fun `remove only element`() {
-        list.add(100)
+    fun `resize works`() {
+        // This test is specific to CustomArrayList internal implementation
+        // We can test by adding more elements than initial capacity
+        val smallList = CustomArrayList(2)
+        smallList.add(1)
+        smallList.add(2)
+        smallList.add(3) // This should trigger resize
 
-        assertTrue(list.remove(100))
-        assertEquals(0, list.size)
-        assertFalse(list.contains(100))
-
-        list.add(200)
-        assertEquals(1, list.size)
-    }
-
-    @Test
-    fun `empty list`() {
-        assertFalse(list.contains(5))
-        assertEquals(-1, list.indexOf(1))
-        assertEquals(0, list.size)
-    }
-
-    @Test
-    fun `remove head and tail`() {
-        list.add(10)
-        list.add(20)
-        list.add(30)
-
-        assertTrue(list.remove(10))
-        assertEquals(20, list[0])
-
-        assertTrue(list.remove(30))
-        assertEquals(1, list.size)
-        assertEquals(20, list[0])
+        assertEquals(3, smallList.size)
+        assertEquals(1, smallList[0])
+        assertEquals(2, smallList[1])
+        assertEquals(3, smallList[2])
     }
 }
