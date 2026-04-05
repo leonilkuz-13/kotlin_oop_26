@@ -7,57 +7,52 @@ class SingleLinkedList : CustomList {
     private var begin: Node? = null
     private var tail: Node? = null
 
-    override var size: Int = 0
-        get() {
-            var count = 0
-            var current = begin
-            while (current != null) {
-                count++
-                current = current.next
-            }
-            return count
-        }
+    override var size = 0
 
     override fun add(element: Int) {
-        var newNode = Node(element,null)
-        if (begin == null) {
+        val newNode = Node(element, null)
+        val currentTail = tail
+        if (currentTail == null) {
             begin = newNode
             tail = newNode
-            return
+        } else {
+            currentTail.next = newNode
+            tail = newNode
         }
-
-        tail?.next = newNode
-        tail = newNode
+        size++
     }
 
+    // тут не совсем понятно, как сделать snapshot
     override operator fun set(index: Int, value: Int) {
         if (index < 0) {
             throw IndexOutOfBoundsException("Index $index is negative")
         }
 
+        if (index >= size) {
+            throw IndexOutOfBoundsException("Index $index is greater than size: $size")
+        }
+
         var count = 0
         var current = begin
-        while (count != index && current != null) {
-            current = current.next
+        while (count != index) {
+            current = current?.next
             count++
         }
 
-        if (current == null) {
-            throw IndexOutOfBoundsException("Index $index out of bounds, size = $count") // size по-варварски тут вызывать. Count все посчитал
-        }
-
-        current.value = value
+        current?.value = value
     }
 
     override fun addFirst(element: Int) {
-        var newNode = Node(element,null)
-        if (begin == null) {
+        var newNode = Node(element, null)
+        val currentBegin = begin
+        if (currentBegin == null) {
             begin = newNode
             tail = newNode
+        } else {
+            newNode.next = currentBegin
+            begin = newNode
         }
-
-        newNode.next = begin
-        begin = newNode
+        size++
     }
 
     override operator fun get(index: Int): Int {
@@ -73,13 +68,13 @@ class SingleLinkedList : CustomList {
         }
 
         if (current == null) {
-            throw IndexOutOfBoundsException("Index $index out of bounds, size = $count") // аналогично set
+            throw IndexOutOfBoundsException("Index $index out of bounds, size = $size")
         }
 
         return current.value
     }
 
-    override fun indexOf(element: Int): Int { // поиск вхождения же?
+    override fun indexOf(element: Int): Int {
         var current = begin
         var index = 0
 
@@ -103,10 +98,14 @@ class SingleLinkedList : CustomList {
             if (current.value == element) {
                 if (prev == null) {
                     begin = current.next
+                    if (begin == null) tail = null
                 } else {
                     prev.next = current.next
+                    if (current.next == null) {
+                        tail = prev
+                    }
                 }
-
+                size--
                 return true
             }
             prev = current
@@ -125,21 +124,19 @@ class SingleLinkedList : CustomList {
             }
 
             override fun next(): Int {
-                if (!hasNext()) {
-                    throw NoSuchElementException()
-                }
-
-                val value = current!!.value
-                current = current!!.next
+                val node = current ?: throw NoSuchElementException() // такой snapshot придуман тут
+                val value = node.value
+                current = node.next
                 return value
             }
         }
     }
 
     companion object {
-        fun singleLinkedListOf(vararg items: Int) =
-            items.fold(SingleLinkedList()) { list, item ->
-                list.also{ it.add(item) }
+        fun singleLinkedListOf(vararg items: Int) = SingleLinkedList().apply {
+            for (item in items) {
+                add(item)
             }
+        }
     }
 }
