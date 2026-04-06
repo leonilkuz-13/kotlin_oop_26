@@ -2,51 +2,141 @@ package org.example
 
 class SingleLinkedList : CustomList {
 
-    private val inner = mutableListOf<Int>()
+    private class Node(var value: Int, var next: Node?)
 
-    override val size: Int
-        get() = TODO("Implement this")
+    private var begin: Node? = null
+    private var tail: Node? = null
+
+    override var size = 0
 
     override fun add(element: Int) {
-        TODO("Implement this")
+        val newNode = Node(element, null)
+        val currentTail = tail
+        if (currentTail == null) {
+            begin = newNode
+            tail = newNode
+        } else {
+            currentTail.next = newNode
+            tail = newNode
+        }
+        size++
     }
 
+    // тут не совсем понятно, как сделать snapshot
     override operator fun set(index: Int, value: Int) {
-        TODO("Implement this")
+        if (index < 0) {
+            throw IndexOutOfBoundsException("Index $index is negative")
+        }
+
+        if (index >= size) {
+            throw IndexOutOfBoundsException("Index $index is greater than size: $size")
+        }
+
+        var count = 0
+        var current = begin
+        while (count != index) {
+            current = current?.next
+            count++
+        }
+
+        current?.value = value
     }
 
     override fun addFirst(element: Int) {
-        TODO("Implement this")
+        var newNode = Node(element, null)
+        val currentBegin = begin
+        if (currentBegin == null) {
+            begin = newNode
+            tail = newNode
+        } else {
+            newNode.next = currentBegin
+            begin = newNode
+        }
+        size++
     }
 
     override operator fun get(index: Int): Int {
-        TODO("Implement this")
+        if (index < 0) {
+            throw IndexOutOfBoundsException("Index $index is negative")
+        }
+
+        var current = begin
+        var count = 0
+        while (count < index && current != null) {
+            count++
+            current = current.next
+        }
+
+        if (current == null) {
+            throw IndexOutOfBoundsException("Index $index out of bounds, size = $size")
+        }
+
+        return current.value
     }
 
     override fun indexOf(element: Int): Int {
-        TODO("Implement this")
+        var current = begin
+        var index = 0
+
+        while (current != null) {
+            if (current.value == element) {
+                return index
+            }
+
+            current = current.next
+            index++
+        }
+
+        return -1
     }
 
     override fun remove(element: Int): Boolean {
-        TODO("Implement this")
+        var current = begin
+        var prev: Node? = null
+
+        while (current != null) {
+            if (current.value == element) {
+                if (prev == null) {
+                    begin = current.next
+                    if (begin == null) tail = null
+                } else {
+                    prev.next = current.next
+                    if (current.next == null) {
+                        tail = prev
+                    }
+                }
+                size--
+                return true
+            }
+            prev = current
+            current = current.next
+        }
+        return false
     }
 
     override fun iterator(): Iterator<Int> {
         return object : Iterator<Int> {
+
+            private var current = begin
+
             override fun hasNext(): Boolean {
-                TODO("Implement this")
+                return current != null
             }
 
             override fun next(): Int {
-                TODO("Implement this")
+                val node = current ?: throw NoSuchElementException() // такой snapshot придуман тут
+                val value = node.value
+                current = node.next
+                return value
             }
         }
     }
 
     companion object {
-        fun singleLinkedListOf(vararg items: Int) =
-            items.fold(SingleLinkedList()) { list, item ->
-                list.also{ it.add(item) }
+        fun singleLinkedListOf(vararg items: Int) = SingleLinkedList().apply {
+            for (item in items) {
+                add(item)
             }
+        }
     }
 }
