@@ -13,8 +13,9 @@ class ArrayListStack (private val storage: CustomList = CustomArrayList(10)) : S
             throw NoSuchElementException()
         }
 
-        val index = storage.size - 1
-        return storage.get(index)
+        val value = storage.get(storage.size - 1)
+        storage.remove(value)
+        return value
     }
 
     override fun peek(): Int {
