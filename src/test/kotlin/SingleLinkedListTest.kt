@@ -12,6 +12,7 @@ class SingleLinkedListTest {
         list = SingleLinkedList()
     }
 
+
     @Test
     fun `add elements`() {
         list.add(1)
@@ -91,7 +92,7 @@ class SingleLinkedListTest {
         list.add(20)
         list.add(30)
 
-        assertEquals(2, list.indexOf(20))
+        assertEquals(1, list.indexOf(20))
     }
 
     @Test
@@ -102,5 +103,38 @@ class SingleLinkedListTest {
 
         list[2] = 5
         assertEquals(5, list[2])
+    }
+
+    @Test
+    fun `remove only element`() {
+        list.add(100)
+
+        assertTrue(list.remove(100))
+        assertEquals(0, list.size)
+        assertFalse(list.contains(100))
+
+        list.add(200)
+        assertEquals(1, list.size)
+    }
+
+    @Test
+    fun `empty list`() {
+        assertFalse(list.contains(5))
+        assertEquals(-1, list.indexOf(1))
+        assertEquals(0, list.size)
+    }
+
+    @Test
+    fun `remove head and tail`() {
+        list.add(10)
+        list.add(20)
+        list.add(30)
+
+        assertTrue(list.remove(10))
+        assertEquals(20, list[0])
+
+        assertTrue(list.remove(30))
+        assertEquals(1, list.size)
+        assertEquals(20, list[0])
     }
 }
