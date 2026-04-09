@@ -39,4 +39,3 @@ fun main() {
     linkedStack.push(3)
     println("SingleLinkedStack:")
     ListPrinter.printList(linkedStack)
-}
