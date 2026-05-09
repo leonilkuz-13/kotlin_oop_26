@@ -4,15 +4,32 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 fun divideOrZero(a: Int, b: Int): Int {
-    TODO("IMPLEMENT")
+    return when {
+        b == 0 -> 0
+        else -> a / b
+    }
 }
 
-class Supplier<T> {
+// мне понравилось на уровне интерфейса задавать ковариантность и контравариантность.
 
+interface Supplier<out T> {
+    fun get(): T
 }
 
-class Consumer<T> {
+interface Consumer<in T> {
+    fun consume(item: T)
+}
 
+class StringSupplier : Supplier<String> {
+    override fun get(): String {
+        return "hello!!"
+    }
+}
+
+class AnyConsumer: Consumer<Any> {
+    override fun consume(item: Any) {
+        println("consume $item")
+    }
 }
 
 var initCount = 0
@@ -32,8 +49,20 @@ class DelegateOwner {
     }
 }
 
-class lazy2 {
-    // implement!
+class lazy2<T>(private val initializer: () -> T) {
+
+    private var isInitialized = false
+    private var cached: Any? = null
+
+    @Suppress("UNCHECKED_CAST")
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
+        if (!isInitialized) {
+            cached = initializer()
+            isInitialized = true
+        }
+
+        return cached as T
+    }
 }
 
 fun main() {
@@ -44,11 +73,18 @@ fun main() {
         error("Incorrect division for zero")
     }
 
-    val strSupp: Supplier<String> = Supplier<String>()
-    val anySupp: Supplier<Any> = strSupp
+    if (divideOrZero(-10, 8) != -1) {
+        error("Incorrect division for positive")
+    }
 
-    val anyConsumer: Consumer<Any> = Consumer<Any>()
-    val strConsumer: Consumer<String> = anyConsumer
+    val supplier: Supplier<String> = StringSupplier()
+    val consumer: Consumer<Any> = AnyConsumer()
+
+    val item: String = supplier.get()
+    println("Got item from supplier: $item")
+
+    consumer.consume(item)
+    consumer.consume(39)
 
     val owner = DelegateOwner()
     if (initCount != 0) {
@@ -72,7 +108,7 @@ fun main() {
     }
 
     val res32 = owner.item3
-    if (res32 != 12) {
+    if (res32 != null) {
         error("Not correct res32")
     }
     if (initCount3 > 1) {
